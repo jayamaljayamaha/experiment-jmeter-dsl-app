@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+@CacheableRule
+class JmeterRule implements ComponentMetadataRule {
+    void execute(ComponentMetadataContext context) {
+        context.details.allVariants {
+            withDependencies {
+                removeAll { it.group == "org.apache.jmeter" && it.name == "bom" }
+            }
+        }
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'us.abstracta.jmeter:jmeter-java-dsl:1.3'
+    implementation 'org.json:json:20220924'
+    implementation 'us.abstracta.jmeter:jmeter-java-dsl-dashboard:1.3'
+    implementation 'us.abstracta.jmeter:jmeter-java-dsl-parallel:1.7'
+    components {
+        withModule("org.apache.jmeter:ApacheJMeter_core", JmeterRule)
+        withModule("org.apache.jmeter:ApacheJMeter_java", JmeterRule)
+        withModule("org.apache.jmeter:ApacheJMeter", JmeterRule)
+
+        withModule("org.apache.jmeter:ApacheJMeter_http", JmeterRule)
+        withModule("org.apache.jmeter:ApacheJMeter_functions", JmeterRule)
+        withModule("org.apache.jmeter:ApacheJMeter_components", JmeterRule)
+        withModule("org.apache.jmeter:ApacheJMeter_config", JmeterRule)
+        withModule("org.apache.jmeter:jorphan", JmeterRule)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
