@@ -18,15 +18,11 @@ public class SampleDataLogger extends SimpleDataWriter {
     @Override
     public void clearData() {
         System.out.println("clear data");
-        // NOOP
     }
 
     @Override
     public synchronized void add(SampleResult sample) {
-//        System.out.println("Results came");
-//        System.out.println("Latency: "+sample.getLatency());
         System.out.println("Full Time: " +sample.getTime());
-//        System.out.println("Process Time: "+ (sample.getTime()- sample.getLatency()));
         this.sum.set(this.sum.get() + (sample.getTime()));
         System.out.println("sum: "+ this.sum.get());
     }

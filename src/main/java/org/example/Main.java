@@ -1,14 +1,9 @@
 package org.example;
 
-import com.blazemeter.jmeter.http.ParallelHTTPSampler;
-import org.apache.http.HttpHeaders;
 import org.apache.http.entity.ContentType;
-import org.apache.jmeter.gui.AbstractJMeterGuiComponent;
-import org.apache.jmeter.gui.JMeterGUIComponent;
 import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.reporters.ResultCollector;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.visualizers.SimpleDataWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import us.abstracta.jmeter.javadsl.JmeterDsl;
@@ -19,7 +14,6 @@ import us.abstracta.jmeter.javadsl.core.listeners.BaseListener;
 import us.abstracta.jmeter.javadsl.core.preprocessors.DslJsr223PreProcessor.PreProcessorVars;
 import us.abstracta.jmeter.javadsl.core.threadgroups.BaseThreadGroup;
 import us.abstracta.jmeter.javadsl.dashboard.DashboardVisualizer;
-import us.abstracta.jmeter.javadsl.parallel.ParallelController;
 
 
 import java.io.IOException;
@@ -37,33 +31,22 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Main main = new Main();
-        String regularUrl = "http://127.0.0.1:8080/images";
-        String asyncUrl = "http://127.0.0.1:8080/images/async";
-        String reactiveUrl = "http://127.0.0.1:8081/reactive/image";
-        String nodeUrl = "http://127.0.0.1:3000/express/image";
-        //String nodeUrl = "http://localhost:3000/express/image";
-        TestPlanStats testPlanStats = main.createDslTestPlanForRegular(regularUrl).run();
+        String regularUrl = "http://localhost:8080/images";
+        String asyncUrl = "http://localhost:8080/images/async";
+        String reactiveUrl = "http://localhost:8080/reactive/image";
+        String nodeUrl = "http://localhost:3000/express/image";
+        TestPlanStats testPlanStats = main.createDslTestPlanForRegular(reactiveUrl).run();
         System.out.println(testPlanStats);
     }
 
     public DslTestPlan createDslTestPlanForRegular(String url) {
         return JmeterDsl.testPlan(
-//                JmeterDsl.threadGroup(1, 1,
-//                        new ParallelController(
-//                                null, getThreadGroupChileList(url)
-//
-//                        )
-//
-//                        /)
-////                ),/.children(JmeterDsl.responseFileSaver("response-for-http")
-                JmeterDsl.threadGroup().rampTo(10000, Duration.ofSeconds(10)).holdIterating(1).children(
+                JmeterDsl.threadGroup().rampTo(10000, Duration.ofSeconds(1)).holdIterating(1).children(
                         JmeterDsl.httpSampler(url)
                                 .method(HTTPConstants.POST)
                                 .contentType(ContentType.APPLICATION_JSON)
                                 .body(this::getRequestBody)
-                                //.children(JmeterDsl.responseFileSaver("response-for-http"))
                 ),
-                //JmeterDsl.resultsTreeVisualizer()
                 DashboardVisualizer.dashboardVisualizer()
         );
     }
@@ -89,7 +72,7 @@ public class Main {
         JSONArray imagesArray = new JSONArray(IntStream.range(0, 10).mapToObj(value -> new JSONObject(getImageDetailsAsMap(value))).toArray());
         Map<String, JSONArray> imageDetailsMap = new HashMap<>();
         imageDetailsMap.put("images", imagesArray);
-//        return imagesArray.toString();
+        //return imagesArray.toString();
         return new JSONObject(imageDetailsMap).toString();
     }
 
